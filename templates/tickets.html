@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+    <div class="text-center">
+    Вашите билети за резервация № {{reservation.id}}:
+
+<br><br>
+    {% for ticket in tickets %}
+        <div class="text-center">
+            <h3>Билет № {{loop.index}}</h3>
+            <a href="/static/tickets/{{ ticket }}"><img src="/static/tickets/{{ticket}}" style="width: 400px" alt="ticket {{ loop.index }}"></a>
+
+
+        </div>
+        <br><br>
+    {% endfor %}
+    </div>
+
+
+{% endblock %}

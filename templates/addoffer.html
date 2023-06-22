@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block content %}
+
+<br><br><br>
+
+
+<div class="text-center">
+<input type="hidden" id="isreserved" value="{{ isreserved }}">
+
+
+<br><br><br>
+
+<form method="POST" enctype="multipart/form-data">
+<h6>Име: <input type="text" id="name" name="name" value=""></h6>
+    <h6>Описание: <textarea type="" id="description" name="description" style="width: 600px; height: 100px"></textarea></h6>
+    <h6> Държава: <select name="country" id="country">
+        {% for country in countries %}
+            <option value="{{ country.id }}">{{ country.name }}</option>
+        {% endfor %}
+</select></h6>
+<h6>Локация: <input type="text" id="loc" name="loc" value=""></h6>
+<h6>Дата на заминаване: <input type="date" id="date_of_departure" name="date_of_departure" value=""></h6>
+<h6>Дата на връщане: <input type="date" id="date_of_return" name="date_of_return" value=""></h6>
+<h6>Цена: <input type="number" id="price" step="0.01" name="price" value=""></h6>
+<h6>Свободни места: <input type="number" id="free_places" name="free_places" value=""></h6>
+
+<br><br>
+
+<h6>Картинка:<br><br></h6>
+    <input type="file" id="picture" name="picture" value="">
+<br><br>
+
+    <button class="btn btn-success" type="submit" value="">Добавяне</button>
+
+</form>
+
+
+
+
+
+</div>
+
+
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+    <br><br><br><br><br>
+
+  <div class="card-deck">
+
+{% for country in countries %}
+
+
+  <div class="card">
+      <img class="card-img-top" src="/static/dests/{{ country.id }}.jpg" alt="Card image cap">
+      <div class="card-body">
+        <h5 class="card-title">{{ country.name }}</h5>
+        <p class="card-text">{{ country.description }}</p>
+      </div>
+
+        <div class="card-footer">
+        <a href="/country/{{ country.lower_name }}"><h6 style="margin-bottom: 0; text-align: center; align-content: center; align-items: center">Виж</h6></a>
+      </div>
+    </div>
+
+
+{% endfor %}
+
+</div>
+    <br><br><br><br><br>
+
+
+{% endblock %}

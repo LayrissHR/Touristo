@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+body{
+    background:#eee;
+}
+
+.card {
+    box-shadow: 0 20px 27px 0 rgb(0 0 0 / 5%);
+}
+
+.card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    word-wrap: break-word;
+    background-color: #fff;
+    background-clip: border-box;
+    border: 0 solid rgba(0,0,0,.125);
+    border-radius: 1rem;
+}
+
+.card-body {
+    -webkit-box-flex: 1;
+    -ms-flex: 1 1 auto;
+    flex: 1 1 auto;
+    padding: 1.5rem 1.5rem;
+}
+</style>
+    <br><br><br><br>
+
+
+
+
+                      <script>
+
+    function calculateprice() {
+        exactprice1.innerHTML = "LOADING..."
+    let exactprice = document.getElementById("exactprice");
+    let tickets = document.getElementById("tickets");
+    let priceper = document.getElementById("priceper");
+    let add = document.getElementById("add");
+    let ediscount = document.getElementById("ediscount");
+
+    let total = (((tickets.value * priceper.value) + parseInt(add.value)) - parseInt(ediscount.value)).toFixed(2);
+    exactprice.innerHTML = tickets.value;
+    exactprice1.innerHTML = total + " BGN";
+
+    }
+
+    function addticket() {
+
+        let tickets = document.getElementById("tickets");
+        let priceper = document.getElementById("priceper");
+        let ticketsholder = document.getElementById("lefth");
+
+
+
+        let newdiv = document.createElement("div");
+        let newticketvalue = parseInt(tickets.value) + 1;
+        newdiv.setAttribute("id", "ticket" + newticketvalue);
+        // use input fields
+        // eg - instead of { user.fname } use <input type="text" name="fname" id="fname">
+        newdiv.innerHTML = '<hr><h1>Билет ' + (parseInt(tickets.value) + 1) + '</h1><br><br><h6>Име: <input type="text" name="fname' + newticketvalue + '" placeholder="Име" required></h6><h6>Фамилия: <input type="text" name="lname' + newticketvalue + '" placeholder="Фамилия" required></h6><h6>Телефон: <input type="text" name="phone' + newticketvalue + '" placeholder="Телефон" required></h6><h6>Адрес: <input type="text" name="address' + newticketvalue + '" placeholder="Адрес" required></h6><hr>';
+
+        ticketsholder.appendChild(newdiv);
+        tickets.value = parseInt(tickets.value) + 1;
+        calculateprice()
+
+}
+
+
+{# when the value option of select name=roomtype changes do somethnig#}
+
+
+</script>
+
+
+<form method="POST">
+    <input type="hidden" name="tickets" id="tickets" value="1">
+    <input type="hidden" name="priceper" id="priceper" value="{{ offer.price }}">
+    <input type="hidden" name="add" id="add" value="0">
+    <input type="hidden" name="ediscount" id="ediscount" value="{{ earlydiscount }}">
+<div class="container">
+
+
+    <h1 class="h3 mb-5">Плащане</h1>
+    <div class="row">
+      <!-- Left -->
+      <div id="lefth" class="col-lg-9">
+          <button class="btn btn-primary" type="button" onclick="addticket()">Добави още билети</button>
+          <br><br><br>
+          <div id="ticket1">
+              <hr>
+            <h1>Билет 1</h1>
+            <br><br>
+            <h6>Име: <input name="fname1" type='text' value='{{ user.fname }}' placeholder='Име' readonly required></h6>
+            <h6>Фамилия: <input name="lname1" type='text' value='{{ user.lname }}' placeholder='Фамилия' readonly required></h6>
+            <h6>Телефон: <input name="phone1" type='text' value='{{ user.phone }}' placeholder='Телефон' readonly required></h6>
+            <h6>Адрес: <input name="address1" type='text' value='{{ user.address }}' placeholder='Адрес' readonly required></h6>
+              <hr>
+          </div>
+      </div>
+      <!-- Right -->
+      <div class="col-lg-3">
+        <div class="card position-sticky top-0">
+          <div class="p-3 bg-light bg-opacity-10">
+            <h6 class="card-title mb-3">Поръчка</h6>
+            <hr>
+              <h6>Тип стая</h6>
+
+                <select name="roomtype" class="form-select" aria-label="Default select example">
+                    <option value="single">Единична</option>
+                    <option value="double">Двойна</option>
+                    <option value="suite">Апартамент</option>
+                </select>
+              <script>
+                  document.querySelector('select[name="roomtype"]').onchange = function() {
+    console.log("changed");
+    let roomtype = document.querySelector('select[name="roomtype"]').value;
+    let add = document.getElementById("add");
+
+    if (roomtype == "single") {
+        add.value = 0;
+    } else if (roomtype == "double") {
+        add.value = 100;
+    } else if (roomtype == "suite") {
+        add.value = 200;
+    }
+
+    calculateprice()
+}
+              </script>
+                <hr>
+                          <div class="d-flex justify-content-between mb-4 small">
+              <span>БИЛЕТИ x {{ offer.price }}</span> <strong id="exactprice" class="text-dark">LOADING...</strong>
+
+            </div>{% if earlyreservation == True %}
+              <div class="d-flex justify-content-between mb-4 small">
+
+                <span>РАННО ЗАПИСВАНЕ</span> <strong id="exactprice" class="text-danger">-{{ earlydiscount }} BGN</strong>
+
+
+            </div> {% endif %}
+              <hr>
+            <div class="d-flex justify-content-between mb-4 small">
+              <span>ОБЩО</span> <strong id="exactprice1" class="text-dark">LOADING...</strong>
+            </div>
+
+
+            <div class="form-check mb-1 small">
+              <input required class="form-check-input" type="checkbox" value="" id="tnc">
+              <label class="form-check-label" for="tnc">
+                Съгласявам се <a href="#">с общите условия на Touristo</a>
+              </label>
+            </div>
+            <button class="btn btn-primary w-100 mt-2" type="submit">Резервирай</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+    </form>
+    <br><br><br><br>
+<script>
+    calculateprice()
+    </script>
+{% endblock %}
