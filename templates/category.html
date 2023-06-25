@@ -11,7 +11,7 @@
       <img class="card-img-top" src="/static/dests/{{ country.id }}.jpg" alt="Card image cap">
       <div class="card-body">
         <h5 class="card-title">{{ country.name }}</h5>
-        <p class="card-text">{{ country.description }}</p>
+        <p class="card-text">{{ country.description | safe }}</p>
       </div>
 
         <div class="card-footer">

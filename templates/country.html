@@ -8,7 +8,7 @@
       <img class="card-img-top" src="/static/offers/{{ offer.id }}.jpg" alt="Card image cap">
       <div class="card-body">
         <h5 class="card-title">{{ offer.name }}</h5>
-        <p class="card-text">{{ offer.description }}</p>
+        <p class="card-text">{{ offer.description | safe }}</p>
       </div>
       <div class="card-footer" >
         <h5 style="margin-bottom: 0; text-align: center; align-content: center; align-items: center">{{ offer.days}} {% if offer.days > 1 %} дни {% else %} ден {% endif %}</h5>

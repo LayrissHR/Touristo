@@ -1,2 +1,26 @@
 
 .idea/vcs.xml
+.idea/*
+.idea\*
+.idea\workspace.xml
+.idea\libraries
+.idea\libraries\*
+.idea\libraries\*.xml
+.idea\libraries\*.properties
+.idea\libraries\*.jar
+.idea\libraries\*.so
+.idea/sonarlint
+.idea/sonarlint/*
+.idea/sonarlint/sonarlint.properties
+.idea/sonarlint/sonarlint.xml
+.idea/sonarlint/storage
+.idea/sonarlint/storage/*
+.idea/sonarlint/storage/**/*
+.idea/sonarlint/storage/**/**/*
+.idea/sonarlint/issuestore/index.pb
+.idea/sonarlint/securityhotspotstore/index.pb
+static/tickets/*
+static/tickets
+static\tickets\*
+static\tickets\**
+static\tickets

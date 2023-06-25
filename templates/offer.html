@@ -17,7 +17,7 @@
             <!-- Section Heading-->
             <div class="section-heading text-center wow fadeInUp" data-wow-delay="0.2s" style="visibility: visible; animation-delay: 0.2s; animation-name: fadeInUp;">
               <h4>{{ offer.name }}</h4>
-              <p>{{ offer.description }}</p>
+              <p>{{ offer.description | safe}}</p>
                 <br><br>
                 <p><img src="/static/map-location-dot-solid.svg" style="width: 30px">&nbsp;&nbsp;{{ offer.location }}</p>
               <div class="line"></div>
