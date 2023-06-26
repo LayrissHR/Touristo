@@ -5,7 +5,7 @@
   <div class="card-deck">
       {% for offer in offers %}
     <div class="card" style="max-width: 400px !important; margin-bottom: 10px">
-      <img class="card-img-top" src="/static/offers/{{ offer.id }}.jpg" alt="Card image cap">
+      <a href="/offer/{{ offer.id }}"><img class="card-img-top" src="/static/offers/{{ offer.id }}.jpg" style="height: 200px; object-fit: cover" alt="Card image cap"></a>
       <div class="card-body">
         <h5 class="card-title">{{ offer.name }}</h5>
         <p class="card-text">{{ offer.description | safe }}</p>

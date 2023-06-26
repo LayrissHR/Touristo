@@ -1,4 +1,5 @@
 import locale
+import re
 from random import sample
 
 import paypalrestsdk
@@ -59,12 +60,14 @@ class User(db.Model, UserMixin):
 class Country(db.Model):
     __tablename__ = 'countries'
     id = db.Column(db.Integer, primary_key=True)
+    localname = db.Column(db.String(100))
     name = db.Column(db.String(100))
     description = db.Column(db.String(1000))
     category = db.Column(db.String(30))
     offers = db.relationship('Offer', backref='country', lazy=True)
 
-    def __init__(self, name, description, category):
+    def __init__(self, localname, name, description, category):
+        self.localname = localname
         self.name = name
         self.description = description
         self.category = category
@@ -220,8 +223,10 @@ def country(countryname=None):
         flash('Нямаме информация за тази държава.', category='error')
         return redirect(url_for('index'))
     else:
-        countryname = countryname.capitalize()
-        country = Country.query.filter_by(name=countryname).first()
+
+        countryname = re.sub(r'[^a-zA-Zа-яА-Я]', '', countryname)
+
+        country = Country.query.filter_by(localname=countryname).first()
 
         if country is None:
             flash('Нямаме информация за тази държава.', category='error')
@@ -392,7 +397,7 @@ def execute():
         flash('Успешно плащане. Проверете си имейл адреса.', category='success')
         reservation = Reservation.query.filter_by(id=custom_data).first()
         offer = Offer.query.filter_by(id=reservation.offer_id).first()
-        offer.free_places = (offer.free_places) - int(reservation.tickets)
+        offer.free_places = offer.free_places - int(reservation.tickets)
         reservation.paid = True
         db.session.commit()
 
@@ -400,6 +405,7 @@ def execute():
         sendreserveemail(current_user.email, name, offer, reservation)
 
         return redirect(url_for('index'))
+
     else:
         flash('Грешка при плащането. Опитайте отново', category='error')
         reservation = Reservation.query.filter_by(id=custom_data).first()
@@ -773,6 +779,15 @@ def add(where=None):
             days = (datetime.datetime.strptime(date_of_return, '%Y-%m-%d') - datetime.datetime.strptime(date_of_departure,
                                                                                       '%Y-%m-%d')).days
 
+
+
+            if days < 0:
+                flash('Моля изберете валидна дата.', category='error')
+                return redirect(url_for('add', where='offers'))
+
+            if days == 0:
+                days = 1
+
             country = Country.query.filter_by(id=countryid).first()
 
             offer = Offer(name=name, description=description, country_id=country.id, days=days, location=location,
@@ -801,7 +816,14 @@ def add(where=None):
                 flash('Моля попълнете всички полета.', category='error')
                 return redirect(url_for('add', where='dests'))
 
-            country = Country(name=name, description=description, category=category)
+            # localname = lower, remove all symbols, but letters
+            localname = name.lower()
+            # re sub
+            localname = re.sub(r'[^a-zA-Zа-яА-Я]', '', localname)
+
+
+
+            country = Country(localname=localname, name=name, description=description, category=category)
             db.session.add(country)
             db.session.commit()
 

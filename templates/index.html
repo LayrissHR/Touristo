@@ -37,9 +37,11 @@
     <br><br>
 
   <div class="card-deck">
+  <div class="row">
   {% for topoffer in topoffers %}
-    <div class="card">
-      <img class="card-img-top" src="/static/offers/{{ topoffer.id }}.jpg" alt="Card image cap">
+      <div class="col-md-3" style="margin-bottom: 35px !important;">
+    <div class="card h-100">
+      <a href="/offer/{{ topoffer.id }}"><img class="card-img-top" src="/static/offers/{{ topoffer.id }}.jpg" style="height: 200px" alt="Card image cap"></a>
       <div class="card-body">
         <h5 class="card-title">{{ topoffer.name }}</h5>
         <p class="card-text">{{ topoffer.description | safe }}</p>
@@ -48,9 +50,11 @@
           <a href="/offer/{{ topoffer.id }}"><button class="btn btn-primary">Виж</button></a>
       </div>
     </div>
+      </div>
 
 
     {% endfor %}
+  </div>
 
   </div>
 
