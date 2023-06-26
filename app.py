@@ -332,6 +332,7 @@ def reserve(offerid=None):
             address = request.form.get("address" + str(i))
             phone = request.form.get("phone" + str(i))
             ticketi = i
+            print(fname, lname, address, phone, ticketi, reservation.id)
 
             generateticket(offer, fname + " " + lname, offer.location, offer.date_of_departure, offer.date_of_return,
                            offer.price, current_user, ticketi, reservation)
