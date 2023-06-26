@@ -7,7 +7,7 @@
 
         .card {
             box-shadow: 0 20px 27px 0 rgb(0 0 0 / 5%);
-                        position: relative;
+            position: relative;
             display: flex;
             flex-direction: column;
             min-width: 0;
@@ -130,24 +130,36 @@
                             </thead>
                             <tbody>
                             <tr>
-                                <td><center>Име</center></td>
-                                <td><input class="form-control" name="fname1" type='text' value='{{ user.fname }}' placeholder='Име' readonly
-                                        required></td>
+                                <td>
+                                    <center>Име</center>
+                                </td>
+                                <td><input class="form-control" name="fname1" type='text' value='{{ user.fname }}'
+                                           placeholder='Име' readonly
+                                           required></td>
                             </tr>
                             <tr>
-                                <td><center>Фамилия</center></td>
-                                <td><input class="form-control" name="lname1" type='text' value='{{ user.lname }}' placeholder='Фамилия'
-                                            readonly required></td>
+                                <td>
+                                    <center>Фамилия</center>
+                                </td>
+                                <td><input class="form-control" name="lname1" type='text' value='{{ user.lname }}'
+                                           placeholder='Фамилия'
+                                           readonly required></td>
                             </tr>
                             <tr>
-                                <td><center>Телефон</center></td>
-                                <td><input class="form-control" name="phone1" type='text' value='{{ user.phone }}' placeholder='Телефон'
-                                            readonly required></td>
+                                <td>
+                                    <center>Телефон</center>
+                                </td>
+                                <td><input class="form-control" name="phone1" type='text' value='{{ user.phone }}'
+                                           placeholder='Телефон'
+                                           readonly required></td>
                             </tr>
                             <tr>
-                                <td><center>Адрес</center></td>
-                                <td><input class="form-control" name="address1" type='text' value='{{ user.address }}' placeholder='Адрес'
-                                          readonly required></td>
+                                <td>
+                                    <center>Адрес</center>
+                                </td>
+                                <td><input class="form-control" name="address1" type='text' value='{{ user.address }}'
+                                           placeholder='Адрес'
+                                           readonly required></td>
                             </tr>
                             </tbody>
                         </table>
@@ -208,23 +220,25 @@
                                     Съгласявам се <a href="#">с общите условия на Touristo</a>
                                 </label>
                             </div>
-                        <input type="hidden" name="payincash" id="payincash" value="0">
-                        <script>
-                            function payincash() {
-                                let payincash = document.getElementById("payincash");
-                                if (payincash.value === 0) {
-                                    payincash.value = 1;
-                                } else {
-                                    payincash.value = 0;
+                            <input type="hidden" name="payincash" id="payincashd" value="0">
+                            <script>
+                                function submitform() {
+                                    document.getElementById("form1").submit();
                                 }
-                            }
 
-                            function submitform() {
-                                document.getElementById("form1").submit();
-                            }
-                        </script>
+                                function payincash2() {
+                                    let payincash = document.getElementById("payincashd");
+                                    payincash.value = 1;
+
+                                    submitform()
+                                }
+
+
+                            </script>
                             <button class="btn btn-primary w-100 mt-2" type="submit">Резервирай</button>
-                            <button class="btn btn-primary w-100 mt-2" type="button" onclick="payincash()">Плати в брой</button>
+                            <button class="btn btn-primary w-100 mt-2" type="button" onclick="payincash2()">Плати в
+                                брой
+                            </button>
                         </div>
                     </div>
                 </div>

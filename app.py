@@ -341,7 +341,9 @@ def reserve(offerid=None):
 
         name = current_user.fname + " " + current_user.lname
 
-        if int(payincash) == 1:
+        print("payincash: " + str(payincash))
+
+        if payincash == "1":
             flash('Резервацията е направена успешно. Може да платите в брой в офиса ни.', category='success')
             reservation2 = Reservation.query.filter_by(id=reservation.id).first()
             offer2 = Offer.query.filter_by(id=reservation2.offer_id).first()
