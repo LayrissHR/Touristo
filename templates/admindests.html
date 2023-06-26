@@ -5,12 +5,13 @@
         <br><br>  <a href="/add/dests"><button class="btn btn-secondary">Създаване на дестинация</button></a><br><br><br>
 
   <div class="card-deck">
+  <div class="row">
 
 
 {% for dest in dests %}
 
-
-  <div class="card">
+<div class="col-md-3" style="margin-bottom: 35px;">
+  <div class="card h-100">
       <img class="card-img-top" src="/static/dests/{{ dest.id }}.jpg" alt="Card image cap">
       <div class="card-body">
         <h5 class="card-title">{{ dest.name }}</h5>
@@ -21,11 +22,12 @@
         <a href="/admin/dests/edit/{{ dest.id }}"><h6 style="margin-bottom: 0; text-align: center; align-content: center; align-items: center">Редактиране</h6></a>
       </div>
     </div>
-
+    </div>
 
 {% endfor %}
 
 </div>
+  </div>
     <br><br><br><br><br>
 
 {% endblock %}

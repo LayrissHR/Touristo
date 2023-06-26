@@ -392,6 +392,7 @@ def execute():
         flash('Успешно плащане. Проверете си имейл адреса.', category='success')
         reservation = Reservation.query.filter_by(id=custom_data).first()
         offer = Offer.query.filter_by(id=reservation.offer_id).first()
+        offer.free_places = (offer.free_places) - int(reservation.tickets)
         reservation.paid = True
         db.session.commit()
 

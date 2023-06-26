@@ -3,11 +3,12 @@
     <br><br><br><br><br>
 
   <div class="card-deck">
-
+  <div class="row">
 {% for country in countries %}
 
 
-  <div class="card">
+<div class="col-md-3" style="margin-bottom: 35px;">
+  <div class="card h-100">
       <img class="card-img-top" src="/static/dests/{{ country.id }}.jpg" alt="Card image cap">
       <div class="card-body">
         <h5 class="card-title">{{ country.name }}</h5>
@@ -18,11 +19,12 @@
         <a href="/country/{{ country.lower_name }}"><h6 style="margin-bottom: 0; text-align: center; align-content: center; align-items: center">Виж</h6></a>
       </div>
     </div>
-
+</div>
 
 {% endfor %}
 
 </div>
+  </div>
     <br><br><br><br><br>
 
 
