@@ -9,8 +9,6 @@ P
  static/css/bootstrap.min.css.map,5\1\5132dab28e6c8122913610adcd71ffa0c78152a6
 F
 templates/profile.html,7\f\7f1863afc75308f4b2ba18256c163b6f3c56c5d1
-@
-requirements.txt,1\9\19359a61ae2446b51b549167b014da2fcf265768
 I
 templates/editoffers.html,4\e\4e019a89edd387f9522392100d2ec2d484a32c8e
 F
