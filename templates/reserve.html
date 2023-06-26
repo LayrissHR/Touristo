@@ -105,7 +105,7 @@
     </script>
 
 
-    <form method="POST">
+    <form method="POST" id="form1">
         <input type="hidden" name="tickets" id="tickets" value="1">
         <input type="hidden" name="priceper" id="priceper" value="{{ offer.price }}">
         <input type="hidden" name="add" id="add" value="0">
@@ -208,7 +208,24 @@
                                     Съгласявам се <a href="#">с общите условия на Touristo</a>
                                 </label>
                             </div>
+                        <input type="hidden" name="payincash" id="payincash" value="0">
+                        <script>
+                            function payincash() {
+                                let payincash = document.getElementById("payincash");
+                                if (payincash.value === 0) {
+                                    payincash.value = 1;
+                                } else {
+                                    payincash.value = 0;
+                                }
+                            }
+
+                            // submit id form1 as is
+                            function submitform() {
+                                document.getElementById("form1").submit();
+                            }
+                        </script>
                             <button class="btn btn-primary w-100 mt-2" type="submit">Резервирай</button>
+                            <button class="btn btn-primary w-100 mt-2" onclick="">Плати в брой</button>
                         </div>
                     </div>
                 </div>

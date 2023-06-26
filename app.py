@@ -304,6 +304,8 @@ def reserve(offerid=None):
         additional = 0
         ediscount = request.form.get("ediscount")
         totaltotal = request.form.get("totaltotal")
+        payincash = request.form.get("payincash")
+
         if roomtype == "suite":
             additional = 200
         elif roomtype == "double":
@@ -339,6 +341,17 @@ def reserve(offerid=None):
 
         name = current_user.fname + " " + current_user.lname
 
+        if int(payincash) == 1:
+            flash('Резервацията е направена успешно. Може да платите в брой в офиса ни.', category='success')
+            reservation2 = Reservation.query.filter_by(id=reservation.id).first()
+            offer2 = Offer.query.filter_by(id=reservation2.offer_id).first()
+            offer2.free_places = offer2.free_places - int(reservation2.tickets)
+            reservation2.paid = True
+            db.session.commit()
+
+            name = current_user.fname + " " + current_user.lname
+            sendreserveemail(current_user.email, name, offer, reservation)
+            return redirect(url_for('index'))
         return redirect(url_for('payment', reservationid=reservation.id))
 
     return render_template('reserve.html', user=current_user, offer=offer, countries=get_countries(),

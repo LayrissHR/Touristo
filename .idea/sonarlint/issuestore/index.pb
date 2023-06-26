@@ -11,7 +11,5 @@ F
 templates/profile.html,7\f\7f1863afc75308f4b2ba18256c163b6f3c56c5d1
 I
 templates/editoffers.html,4\e\4e019a89edd387f9522392100d2ec2d484a32c8e
-F
-templates/reserve.html,d\9\d973f62ffce6b553b820d99e30fb89f7bb816652
 D
 templates/offer.html,e\f\efc212f28135b3581bb587f35027ec6815856a03
