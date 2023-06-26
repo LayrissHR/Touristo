@@ -352,7 +352,8 @@ def reserve(offerid=None):
             name = current_user.fname + " " + current_user.lname
             sendreserveemail(current_user.email, name, offer, reservation)
             return redirect(url_for('index'))
-        return redirect(url_for('payment', reservationid=reservation.id))
+        else:
+            return redirect(url_for('payment', reservationid=reservation.id))
 
     return render_template('reserve.html', user=current_user, offer=offer, countries=get_countries(),
                            earlyreservation=earlyreservation, earlydiscount=rounded_discount, page="dest")
