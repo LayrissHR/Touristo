@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block content %}
+<br><br><br><br>
+
+  <div class="card-deck">
+      {% for offer in offers %}
+    <div class="card" style="max-width: 400px !important; margin-bottom: 10px">
+      <a href="/offer/{{ offer.id }}"><img class="card-img-top" src="/static/offers/{{ offer.id }}.jpg" style="height: 200px; object-fit: cover" alt="Card image cap"></a>
+      <div class="card-body">
+        <h5 class="card-title">{{ offer.name }}</h5>
+        <p class="card-text">{{ offer.description | safe }}</p>
+      </div>
+      <div class="card-footer" >
+        <h5 style="margin-bottom: 0; text-align: center; align-content: center; align-items: center">{{ offer.days}} {% if offer.days > 1 %} дни {% else %} ден {% endif %}</h5>
+      </div>
+
+        <div class="card-footer">
+            <h6 style="margin-bottom: 0; text-align: center; align-content: center; align-items: center">От <b>{{ offer.date_of_departure }}</b> до <b>{{ offer.date_of_return }}</b></h6>
+      </div>
+
+        <div class="card-footer">
+        <h6 style="margin-bottom: 0; text-align: center; align-content: center; align-items: center">{{ offer.price }} BGN</h6>
+      </div>
+
+        <div class="card-footer">
+        <a href="/offer/{{ offer.id }}"><h6 style="margin-bottom: 0; text-align: center; align-content: center; align-items: center">Виж</h6></a>
+      </div>
+    </div>
+
+        {% endfor %}
+
+  </div>
+
+    <br><br><br>
+
+{% endblock %}

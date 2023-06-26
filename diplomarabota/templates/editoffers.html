@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block content %}
+
+<br><br><br>
+
+
+<div class="text-center">
+<input type="hidden" id="isreserved" value="{{ isreserved }}">
+
+<script>
+    function deloffer() {
+        let con = confirm("Сигурни ли сте, че искате да изтриете тази оферта?")
+
+        if (con === true) {
+            if (document.getElementById("isreserved").value === "True") {
+                let con2 = confirm("Офертата е резервирана. Сигурни ли сте, че искате да я изтриете?")
+                if (con2 === true) {
+                    window.location.href = "/del/offers/{{ offer.id }}"
+                } else {
+                    alert("Операцията беше отказана!")
+                }
+            } else {
+                window.location.href = "/del/offers/{{ offer.id }}"
+            }
+
+        } else {
+            alert("Операцията беше отказана!")
+        }
+    }
+</script>
+
+
+<button type="button" onclick=deloffer() class="btn btn-danger">Изтриване</button>
+
+<br><br><br>
+
+<form method="POST" enctype="multipart/form-data">
+<h6>ID: {{ offer.id }}</h6>
+<h6>Име: <input type="text" id="name" name="name" value="{{ offer.name }}"></h6>
+    <h6>Описание: <textarea type="" id="description" name="description" style="width: 600px; height: 100px">{{ offer.description }}</textarea></h6>
+    <h6> Държава: <select name="country" id="country">
+        {% for country in countries %}
+            <option value="{{ country.id }}" {% if offer.country_id == country.id %}selected{% endif %}>{{ country.name }}</option>
+        {% endfor %}
+</select></h6>
+<h6>Локация: <input type="text" id="loc" name="loc" value="{{ offer.location }}"></h6>
+<h6>Дата на заминаване: <input type="date" id="date_of_departure" name="date_of_departure" value="{{ offer.date_of_departure }}"></h6>
+<h6>Дата на връщане: <input type="date" id="date_of_return" name="date_of_return" value="{{ offer.date_of_return }}"></h6>
+<h6>Цена: <input type="number" id="price" name="price" step="0.01" value="{{ offer.price }}"></h6>
+<h6>Свободни места: <input type="number" id="free_places" name="free_places" value="{{ offer.free_places }}"></h6>
+
+<br><br>
+
+<h6>Картинка:<br><br><img style="width: 800px; height: auto" src="/static/offers/{{ offer.id }}.jpg" alt="Picture of Offer #{{ offer.id }}"></h6>
+<br>
+    <p>Смяна?</p>
+    <input type="file" id="picture" name="picture">
+<br><br>
+
+    <button class="btn btn-success" type="submit" value="">Запази промените</button>
+
+</form>
+
+
+
+
+
+</div>
+
+
+{% endblock %}

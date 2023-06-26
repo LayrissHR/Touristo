@@ -1,0 +1,252 @@
+{% extends "base.html" %}
+{% block content %}
+    <style>
+        body {
+            background: #eee;
+        }
+
+        .card {
+            box-shadow: 0 20px 27px 0 rgb(0 0 0 / 5%);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            word-wrap: break-word;
+            background-color: #fff;
+            background-clip: border-box;
+            border: 0 solid rgba(0, 0, 0, .125);
+            border-radius: 1rem;
+        }
+
+
+        .card-body {
+            -webkit-box-flex: 1;
+            -ms-flex: 1 1 auto;
+            flex: 1 1 auto;
+            padding: 1.5rem 1.5rem;
+        }
+
+        table.customTable {
+            width: 100%;
+            background-color: #FFFFFF;
+            border-collapse: collapse;
+            border-width: 2px;
+            border-color: #7EA8F8;
+            border-style: solid;
+            color: #000000;
+        }
+
+        table.customTable td, table.customTable th {
+            border-width: 2px;
+            border-color: #7EA8F8;
+            border-style: solid;
+            padding: 5px;
+        }
+
+        table.customTable thead {
+            background-color: #7EA8F8;
+        }
+    </style>
+    <br><br><br><br>
+
+
+
+
+    <script>
+
+        function calculateprice() {
+            exactprice1.innerHTML = "LOADING..."
+            let exactprice = document.getElementById("exactprice");
+            let tickets = document.getElementById("tickets");
+            let priceper = document.getElementById("priceper");
+            let add = document.getElementById("add");
+            let ediscount = document.getElementById("ediscount");
+            let totalperticket = document.getElementById("totalperticket");
+            let totaltotal = document.getElementById("totaltotal");
+
+            let total = (((tickets.value * priceper.value) + parseInt(add.value)) - parseInt(ediscount.value)).toFixed(2);
+            exactprice.innerHTML = tickets.value;
+            exactprice1.innerHTML = total + " BGN";
+            totalperticket.value = ((priceper.value) - parseInt(ediscount.value)).toFixed(2)
+            totaltotal.value = total;
+
+        }
+
+        function addticket() {
+
+            let tickets = document.getElementById("tickets");
+            let priceper = document.getElementById("priceper");
+            let ticketsholder = document.getElementById("lefth");
+
+
+            let newdiv = document.createElement("div");
+            let newticketvalue = parseInt(tickets.value) + 1;
+            newdiv.setAttribute("id", "ticket" + newticketvalue);
+            // use input fields
+            // eg - instead of { user.fname } use <input type="text" name="fname" id="fname">
+            newdiv.innerHTML = '<hr><h1>Билет ' + (parseInt(tickets.value) + 1) +
+                '</h1><br><br><table class="customTable"><thead></thead><tbody>' +
+                '<tr><td><center>Име</center></td><td><input class="form-control" name="fname' + newticketvalue + '" type="text" value="" placeholder="Име" required></td></tr>' +
+                '<tr><td><center>Фамилия</center></td><td><input class="form-control" name="lname' + newticketvalue + '" type="text" value="" placeholder="Фамилия" required></td></tr>' +
+                '<tr><td><center>Телефон</center></td><td><input class="form-control" name="phone' + newticketvalue + '" type="text" value="" placeholder="Телефон" required></td></tr>' +
+                '<tr><td><center>Адрес</center></td><td><input class="form-control" name="address' + newticketvalue + '" type="text" value="" placeholder="Адрес" required></td></tr>' +
+                '</tbody></table>';
+
+            ticketsholder.appendChild(newdiv);
+            tickets.value = parseInt(tickets.value) + 1;
+            calculateprice()
+
+        }
+
+
+        {# when the value option of select name=roomtype changes do somethnig#}
+
+
+    </script>
+
+
+    <form method="POST" id="form1">
+        <input type="hidden" name="tickets" id="tickets" value="1">
+        <input type="hidden" name="priceper" id="priceper" value="{{ offer.price }}">
+        <input type="hidden" name="add" id="add" value="0">
+        <input type="hidden" name="ediscount" id="ediscount" value="{{ earlydiscount }}">
+        <input type="hidden" name="totalperticket" id="totalperticket" value="0">
+        <input type="hidden" name="totaltotal" id="totaltotal" value="0">
+        <div class="container">
+
+
+            <h1 class="h3 mb-5">Плащане</h1>
+            <div class="row">
+                <!-- Left -->
+                <div id="lefth" class="col-lg-9">
+                    <button class="btn btn-primary" type="button" onclick="addticket()">Добави още билети</button>
+                    <br><br><br>
+                    <div id="ticket1">
+                        <hr>
+                        <h1>Билет 1</h1>
+                        <br><br>
+                        <table class="customTable">
+                            <thead>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td>
+                                    <center>Име</center>
+                                </td>
+                                <td><input class="form-control" name="fname1" type='text' value='{{ user.fname }}'
+                                           placeholder='Име' readonly
+                                           required></td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <center>Фамилия</center>
+                                </td>
+                                <td><input class="form-control" name="lname1" type='text' value='{{ user.lname }}'
+                                           placeholder='Фамилия'
+                                           readonly required></td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <center>Телефон</center>
+                                </td>
+                                <td><input class="form-control" name="phone1" type='text' value='{{ user.phone }}'
+                                           placeholder='Телефон'
+                                           readonly required></td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <center>Адрес</center>
+                                </td>
+                                <td><input class="form-control" name="address1" type='text' value='{{ user.address }}'
+                                           placeholder='Адрес'
+                                           readonly required></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <!-- Right -->
+                <div class="col-lg-3">
+                    <div class="card position-sticky top-0">
+                        <div class="p-3 bg-light bg-opacity-10">
+                            <h6 class="card-title mb-3">Поръчка</h6>
+                            <hr>
+                            <h6>Тип стая</h6>
+
+                            <select name="roomtype" class="form-select" aria-label="Default select example">
+                                <option value="single">Единична</option>
+                                <option value="double">Двойна</option>
+                                <option value="suite">Апартамент</option>
+                            </select>
+                            <script>
+                                document.querySelector('select[name="roomtype"]').onchange = function () {
+                                    console.log("changed");
+                                    let roomtype = document.querySelector('select[name="roomtype"]').value;
+                                    let add = document.getElementById("add");
+
+                                    if (roomtype == "single") {
+                                        add.value = 0;
+                                    } else if (roomtype == "double") {
+                                        add.value = 100;
+                                    } else if (roomtype == "suite") {
+                                        add.value = 200;
+                                    }
+
+                                    calculateprice()
+                                }
+                            </script>
+                            <hr>
+                            <div class="d-flex justify-content-between mb-4 small">
+                                <span>БИЛЕТИ x {{ offer.price }}</span> <strong id="exactprice" class="text-dark">LOADING...</strong>
+
+                            </div>{% if earlyreservation == True %}
+                            <div class="d-flex justify-content-between mb-4 small">
+
+                                <span>РАННО ЗАПИСВАНЕ</span> <strong id="exactprice"
+                                                                     class="text-danger">-{{ earlydiscount }}
+                                BGN</strong>
+
+
+                            </div> {% endif %}
+                            <hr>
+                            <div class="d-flex justify-content-between mb-4 small">
+                                <span>ОБЩО</span> <strong id="exactprice1" class="text-dark">LOADING...</strong>
+                            </div>
+
+
+                            <div class="form-check mb-1 small">
+                                <input required class="form-check-input" type="checkbox" value="" id="tnc">
+                                <label class="form-check-label" for="tnc">
+                                    Съгласявам се <a href="#">с общите условия на Touristo</a>
+                                </label>
+                            </div>
+                            <input type="hidden" name="payincash" id="payincashd" value="0">
+                            <script>
+                                function submitform() {
+                                    document.getElementById("form1").submit();
+                                }
+
+                                function payincash2() {
+                                    let payincash = document.getElementById("payincashd");
+                                    payincash.value = 1;
+
+                                    submitform()
+                                }
+
+
+                            </script>
+                            <button class="btn btn-primary w-100 mt-2" type="submit">Резервирай</button>
+                            <button class="btn btn-primary w-100 mt-2" type="button" onclick="payincash2()">Плати в
+                                брой
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+    <br><br><br><br>
+    <script>
+        calculateprice()
+    </script>
+{% endblock %}

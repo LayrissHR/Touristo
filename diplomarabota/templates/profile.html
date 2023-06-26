@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+<section class="" style="background-color: #eee;">
+  <div class="container py-5 h-100">
+    <div class="row d-flex justify-content-center align-items-center h-100">
+      <div class="col-md-12 col-xl-4">
+
+        <div class="card" style="border-radius: 15px;">
+          <div class="card-body text-center">
+            <div class="mt-3 mb-4">
+              <img src="/static/blank.png"
+                class="rounded-circle img-fluid" style="width: 100px;" />
+            </div>
+            <h4 class="mb-2">{{ user.fname }} {{ user.lname }}</h4>
+            <h6 class="mb-2">{{user.phone}}</h6>
+            <h6 class="mb-2">{{user.address}}</h6>
+
+          </div>
+        </div>
+          <div class="card" style="border-radius: 15px;">
+          <div class="card-body text-center">
+              <h5>Моите резервации</h5>
+
+              {% for reservation in reservations %}
+                <div class="card" style="border-radius: 15px;">
+                    <div class="card-body text-center">
+                        <h4>Резервация <b>№{{reservation.id}}</b></h4>
+                        <h6>Място: <b>{{ reservation.offer.location }}</b></h6>
+                        <h6>Цена: <b>{{reservation.totalprice}} BGN</b></h6>
+                        <br>
+                        <h6>Дата на заминаване: <b>{{reservation.offer.date_of_departure}}</b></h6>
+                        <h6>Дата на връщане: <b>{{reservation.offer.date_of_return}}</b></h6>
+                        <br>
+                        <h6>Брой пътници: <b>{{reservation.tickets}}</b></h6>
+                        <br>
+                        <a href="/tickets/{{ reservation.id }}"><button class="btn btn-primary">Виж билети</button></a>
+
+
+
+                    </div>
+                            </div>
+             {% endfor %}
+
+
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+
+{% endblock %}

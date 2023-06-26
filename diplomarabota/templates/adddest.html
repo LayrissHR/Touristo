@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+<br><br>  <a href="/add/offers"><button class="btn btn-secondary">Създаване на оферта</button></a>
+         <a href="/add/dests"><button class="btn btn-secondary">Създаване на дестинация</button></a><br><br><br>
+
+<div class="text-center">
+
+
+<h1>Създаване на дестинация</h1>
+<br><br><br>
+
+<form method="POST" enctype="multipart/form-data">
+<h6>Име: <input type="text" id="name" name="name" value=""></h6>
+    <h6>Описание: <textarea type="" id="description" name="description" style="width: 600px; height: 100px"></textarea></h6>
+    <h6> Категория: <select name="country" id="country">
+            <option value="eucap" selected>Европейска столица</option>
+            <option value="exotic">Екзотична дестинация</option>
+            <option value="bg">Екскурзии в България</option>
+</select></h6>
+
+<br><br>
+
+<h6>Картинка:<br><br></h6>
+
+    <input type="file" id="picture" name="picture">
+
+
+    <button class="btn btn-success" type="submit" value="">Създаване</button>
+
+</form>
+
+
+<br><br>
+<br><br>
+
+
+
+</div>
+
+
+{% endblock %}

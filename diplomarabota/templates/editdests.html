@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block content %}
+
+<br><br><br>
+
+
+<div class="text-center">
+
+<script>
+    function deloffer() {
+        let con = confirm("Сигурни ли сте, че искате да изтриете тази дестинация?")
+
+        if (con === true) {
+                window.location.href = "/del/dests/{{ dest.id }}"
+            }
+    }
+</script>
+
+
+<button type="button" onclick=deloffer() class="btn btn-danger">Изтриване</button>
+
+<br><br><br>
+
+<form method="POST" enctype="multipart/form-data">
+<h6>ID: {{ dest.id }}</h6>
+<h6>Име: <input type="text" id="name" name="name" value="{{ dest.name }}"></h6>
+    <h6>Описание: <textarea type="" id="description" name="description" style="width: 600px; height: 100px">{{ dest.description }}</textarea></h6>
+    <h6> Категория: <select name="country" id="country">
+            <option value="eucap" {% if dest.category == "eucap" %} selected {% endif %}>Европейска столица</option>
+            <option value="exotic" {% if dest.category == "exotic" %} selected {% endif %}>Екзотична дестинация</option>
+            <option value="bg" {% if dest.category == "bg" %} selected {% endif %}>Екскурзии в България</option>
+</select></h6>
+
+<br><br>
+
+<h6>Картинка:<br><br><img style="width: 800px; height: auto" src="/static/dests/{{ dest.id }}.jpg" alt="Picture of Dest #{{ dest.id }}"></h6>
+<br>
+    <p>Смяна?</p>
+    <input type="file" id="picture" name="picture">
+<br><br>
+
+    <button class="btn btn-success" type="submit" value="">Запази промените</button>
+
+</form>
+
+
+
+
+
+</div>
+
+
+{% endblock %}
