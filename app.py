@@ -125,6 +125,7 @@ paypalrestsdk.configure({"mode": "sandbox",  # "sandbox" for testing or "live" f
                          "client_secret": "EAtGIWIfcWaES5HnXLm-IwWoUFIzTU_RfKW2nEiVnFrN1FZ2zaW1tFEZc84yJln1w8uLevLtsn9sYQU3"})
 
 
+# С тази функция се взимат всички държави от базата данни и се връщат като списък
 def get_countries():
     countries = Country.query.all()
     for country in countries:
@@ -132,6 +133,7 @@ def get_countries():
     return countries
 
 
+# С тази фунцкия се гененира закупеният билет
 def generateticket(offer1, name1, location1, dateofdeparture, dateofreturn, price5, reguser, ticketi, reservationid):
     dateofreturn = dateofreturn.strftime("%d.%m.%Y")
     dateofdeparture = dateofdeparture.strftime("%d.%m.%Y")
@@ -142,6 +144,7 @@ def generateticket(offer1, name1, location1, dateofdeparture, dateofreturn, pric
 
     name1 = translit(name1, 'bg', reversed=True)
 
+    # Това е линкът към сървъра на Кадсофт, API-то, което генерира билетите като снимки.
     url = f"https://tickets.kadsoftwareusa.com/imageCreator.php?" \
           f"event={offer1.id}" \
           f"&userID=17" \
@@ -170,133 +173,198 @@ def generateticket(offer1, name1, location1, dateofdeparture, dateofreturn, pric
 
     response = requests.get(url)
     ticketid = str(reguser.id) + "_" + str(offer1.id) + "_" + str(reservationid.id) + "_" + str(ticketi)
+    # Тук се записва билета в папката static/tickets, като името му е се генерира по следния начин:
+    # ID на потребителя + ID на офертата + ID на резервацията + номер на билета, като номера на билета е от 1 до броя на закупените билети
+    # Ако човек резервира само за себе си, билет е с №1
+    # Пример: 1_1_1_1.png
+    # или 1_1_1_2.png
     with open(f"static/tickets/{ticketid}.png", 'wb') as f:
         f.write(response.content)
 
         return True
 
 
+# Тук се записват всички пътища, които се използват в сайта
+
+# Това е функцията, генерираща началната страница
 @app.route('/')
 def index():
 
+    # Тук се взимат всички оферти от базата данни
     all_offers = Offer.query.all()
 
+    # Тук се взимат 4 случайни оферти от базата данни
     random_offers = None
 
     if len(all_offers) > 4:
+        # Ако има повече от 4 оферти, се взимат 4 случайни
         random_offers = sample(all_offers, 4)
     else:
+        # Ако има по-малко от 4 оферти, се взимат всички
         random_offers = all_offers
 
     for offer in random_offers:
+        # Тук се добавя името на държавата на всяка оферта с малки букви, за да може да се използва в шаблона
         offer.lower_name = offer.name.lower()
 
+    # Тук се връща шаблона index.html, като се подават следните параметри:
+    # user - текущият потребител
+    # countries - всички държави
+    # topoffers - 4 случайни оферти
+    # page - това е страницата, която се отваря, за да се знае кой е активният бутон в менюто
     return render_template('index.html', user=current_user, countries=get_countries(), topoffers=random_offers,
                            page="home")
 
 
+# Тук се връща страницата за категорията, като се подава името на категорията
 @app.route("/category", methods=['GET', 'POST'])
 @app.route("/category/<categoryname>", methods=['GET', 'POST'])
 def category(categoryname=None):
 
     if categoryname is None:
+        # Ако не е подадено име на категория, се връща грешка
         flash('Нямаме информация за тази категория.', category='error')
         return redirect(url_for('index'))
 
     if categoryname != "eucap" and categoryname != "bg" and categoryname != "exotic":
+        # Ако името на категорията не е в списъка с валидни категории, се връща грешка
         flash('Нямаме информация за тази категория.', category='error')
         return redirect(url_for('index'))
 
+    # Тук се взимат всички държави от базата данни, които са от избраната категория
     countries = Country.query.filter_by(category=categoryname).all()
 
     for country1 in countries:
+        # Тук се добавя името на държавата с малки букви, за да може да се използва в шаблона
         country1.lower_name = country1.name.lower()
+
+    # Тук се връща шаблона category.html, като се подават следните параметри:
+    # user - текущият потребител
+    # countries - всички държави от избраната категория
+    # category - името на избраната категория
+    # page - това е страницата, която се отваря, за да се знае кой е активният бутон в менюто
 
     return render_template('category.html', user=current_user, countries=countries, category=category, page="dest")
 
 
+# Тук се връща страницата за държава, като се подава името на държавата
 @app.route('/country', methods=['GET', 'POST'])
 @app.route('/country/<countryname>', methods=['GET', 'POST'])
 def country(countryname=None):
 
     if countryname is None:
+        # Ако не е подадено име на държава, се връща грешка
         flash('Нямаме информация за тази държава.', category='error')
         return redirect(url_for('index'))
     else:
 
+        # Ако е подадено име на държава, се премахват всички символи, които не са букви, за да може да се използва в заявката
         countryname = re.sub(r'[^a-zA-Zа-яА-Я]', '', countryname)
 
+        # Тук се взима държавата от базата данни
         country = Country.query.filter_by(localname=countryname).first()
 
         if country is None:
+            # Ако няма такава държава, се връща грешка
             flash('Нямаме информация за тази държава.', category='error')
             return redirect(url_for('index'))
 
+        # Тук се добавя името на държавата с малки букви, за да може да се използва в шаблона
         country.lower_name = country.name.lower()
 
+        # Тук се взимат всички оферти от базата данни, които са за избраната държава
         offers = Offer.query.filter_by(country_id=country.id).all()
 
         for offer in offers:
+            # Тук за всяка оферта се променят датите, за да се показват в правилен формат
             offer.date_of_departure = offer.date_of_departure.strftime("%d %B %Y")
             offer.date_of_return = offer.date_of_return.strftime("%d %B %Y")
             offer.country = country
+
+        # Тук се връща шаблона country.html, като се подават следните параметри:
+        # user - текущият потребител
+        # country - избраната държава
+        # offers - всички оферти за избраната държава
+        # countries - всички държави от базата данни
+        # page - това е страницата, която се отваря, за да се знае кой е активният бутон в менюто
 
         return render_template('country.html', user=current_user, country=country, offers=offers,
                                countries=get_countries(), page="dest")
 
 
+# Тук се връща страницата за оферта, като се подава id на офертата
 @app.route('/offer/', methods=['GET', 'POST'])
 @app.route('/offer/<offerid>', methods=['GET', 'POST'])
 def offer(offerid=None):
+    # Тук се взима офертата от базата данни
 
     if offerid is None or not offerid.isdigit():
+        # Ако не е подадено id на оферта или то не е число, се връща грешка
         flash('Нямаме информация за тази оферта.', category='error')
         return redirect(url_for('index'))
+    # Тук се взима офертата от базата данни
 
     offer = Offer.query.filter_by(id=offerid).first()
+    # Тук се проверява дали има такава оферта
     if offer is None:
+        # Ако няма такава оферта, се връща грешка
         flash('Нямаме информация за тази оферта.', category='error')
         return redirect(url_for('index'))
 
+    # Тук се променят датите, за да се показват в правилен формат
     offer.date_of_departure = offer.date_of_departure.strftime("%d %B %Y")
     offer.date_of_return = offer.date_of_return.strftime("%d %B %Y")
     offer.country = Country.query.filter_by(id=offer.country_id).first()
 
+    # Тук се връща шаблона offer.html, като се подават следните параметри:
+    # user - текущият потребител
+    # offer - избраната оферта
+    # countries - всички държави от базата данни
+    # page - това е страницата, която се отваря, за да се знае кой е активният бутон в менюто
+
     return render_template('offer.html', user=current_user, offer=offer, countries=get_countries(), page="dest")
 
 
+# Тук се връща страницата за резервация, като се подава id на офертата
 @app.route('/reserve', methods=['GET', 'POST'])
 @app.route('/reserve/<offerid>', methods=['GET', 'POST'])
 @login_required
 def reserve(offerid=None):
 
     if offerid is None or not offerid.isdigit():
+        # Ако не е подадено id на оферта или то не е число, се връща грешка
         flash('Нямаме информация за тази оферта.', category='error')
         return redirect(url_for('index'))
 
+    # Тук се взима офертата от базата данни
     offer = Offer.query.filter_by(id=offerid).first()
+    # Тук се проверява дали има такава оферта
     if offer is None:
+        # Ако няма такава оферта, се връща грешка
         flash('Нямаме информация за тази оферта.', category='error')
         return redirect(url_for('index'))
 
+    # Тук дефинираме променливи, които ще се използват в шаблона
     earlyreservation = False
     earlydiscount = 0
     rounded_discount = 0
 
-    # make offer.date_of_departure a datetime object insted of date
     offerdateofdeparture = datetime.datetime.strptime(str(offer.date_of_departure), '%Y-%m-%d')
 
-    # check if offer.date_of_departure is more than 7 days from now #2023-06-23
+    # Тук се проверява дали резервацията е ранна или късна, в зависимост от това се изчислява отстъпката.
+    # Ранна резервация е ако датата на заминаване е след 20 или повече дни от момента на резервацията
     if offerdateofdeparture > datetime.datetime.now() + datetime.timedelta(days=20):
-        print("early reservation")
+        # Ако е ранна резервация, се изчислява отстъпката
         earlyreservation = True
+        # Отстъпката е 10% от цената на офертата
         earlydiscount = offer.price * 0.10
+        # За лесно изчисление, отстъпката се закръглява до цяло число
         rounded_discount = round(earlydiscount, 0)
 
-    else:
-        print("late reservation")
-
+    # Ако има POST заявка, това означава, че потребителят е изпратил формата
     if request.method == "POST":
+
+        # Тук се взимат данните от формата
         ticketnumber = request.form.get("tickets")
         ticketnumber = int(ticketnumber)
         roomtype = request.form.get("roomtype")
@@ -306,28 +374,45 @@ def reserve(offerid=None):
         totaltotal = request.form.get("totaltotal")
         payincash = request.form.get("payincash")
 
+        # Тук се изчислява цената на резервацията
+        # Ако е ранна резервация, се изчислява отстъпката
+        # Тук взимаме предпочитания от потребителя тип стая
         if roomtype == "suite":
+            # Ако е сюит, се добавя 200 към цената
             additional = 200
         elif roomtype == "double":
+            # Ако е двойна, се добавя 100 към цената
             additional = 100
         elif roomtype == "single":
+            # Ако е единична, се добавя 0 към цената
             additional = 0
+
+        # Тук се изчислява цената на резервацията
         price = ((float(perticket) * ticketnumber) + additional) - float(ediscount)
         perticketnew = price / ticketnumber
+        # Тук се закръгля цената до 2 знака след запетаята
         totalprice = round(price, 2)
 
         if ticketnumber < 1:
+            # Ако броят на билетите е по-малък от 1, се връща грешка
             flash('Невалиден брой билети.', category='error')
             return redirect(url_for('reserve', offerid=offer.id))
 
         if ticketnumber > offer.free_places:
+            # Ако броят на билетите е по-голям от свободните места, се връща грешка
             flash('Нямаме толкова свободни места.', category='error')
             return redirect(url_for('reserve', offerid=offer.id))
 
+        # Тук се създава резервацията
         reservation = Reservation(offer.id, current_user.id, ticketnumber, totalprice, False, perticketnew)
+
+        # Тук се добавя резервацията в базата данни
         db.session.add(reservation)
+
+        # Тук се записват промените в базата данни
         db.session.commit()
 
+        # Тук за всеки добавен билет се създава билет във формат PNG, чрез описаната по-горе функция
         for i in range(1, ticketnumber + 1):
             fname = request.form.get("fname" + str(i))
             lname = request.form.get("lname" + str(i))
@@ -341,40 +426,61 @@ def reserve(offerid=None):
 
         name = current_user.fname + " " + current_user.lname
 
-        print("payincash: " + str(payincash))
-
+        # Ако потребителят е избрал да плати в брой, се изпраща имейл с данните за резервацията
         if payincash == "1":
             flash('Резервацията е направена успешно. Може да платите в брой в офиса ни.', category='success')
+            # Тук се взима резервацията от базата данни
             reservation2 = Reservation.query.filter_by(id=reservation.id).first()
+            # Тук се взима офертата от базата данни
             offer2 = Offer.query.filter_by(id=reservation2.offer_id).first()
+            # Тук се изважда броят на свободните места
             offer2.free_places = offer2.free_places - int(reservation2.tickets)
+            # Тук резервацията се отбелязва като платена
             reservation2.paid = True
+            # Тук се записват промените в базата данни
             db.session.commit()
 
             name = current_user.fname + " " + current_user.lname
+            # Тук се изпраща имейл с данните за резервацията
             sendreserveemail(current_user.email, name, offer, reservation)
             return redirect(url_for('index'))
         else:
+            # Ако потребителят е избрал да плати с карта, се препраща към страницата за плащане
             return redirect(url_for('payment', reservationid=reservation.id))
+
+    # Тук се връща шаблона за резервацията
+    # Параметрите са:
+    # user - текущият потребител
+    # offer - офертата, която се резервира
+    # countries - списък с държавите
+    # earlyreservation - дали е ранна резервация
+    # earlydiscount - отстъпката за ранна резервация
+    # page - страницата, която се зарежда
 
     return render_template('reserve.html', user=current_user, offer=offer, countries=get_countries(),
                            earlyreservation=earlyreservation, earlydiscount=rounded_discount, page="dest")
 
 
+# Тук се извиква страницата за плащане
 @app.route('/payment/<reservationid>', methods=['GET', 'POST'])
 @login_required
 def payment(reservationid=None):
 
     reservation = Reservation.query.filter_by(id=reservationid).first()
+    # Тук се взима резервацията от базата данни
     if reservation is None:
+        # Ако няма такава резервация, се връща грешка
         flash('Нямаме информация за тази резервация.', category='error')
         return redirect(url_for('index'))
 
     offer = Offer.query.filter_by(id=reservation.offer_id).first()
+    # Тук се взима офертата от базата данни
     if offer is None:
+        # Ако няма такава оферта, се връща грешка
         flash('Нямаме информация за тази оферта.', category='error')
         return redirect(url_for('index'))
 
+    # Тук се изчислява цената на билета в евро
     total_eur = round(float(reservation.totalprice) / 1.95583, 2)
     perticket_eur = round(total_eur / reservation.tickets, 2)
 
@@ -382,6 +488,7 @@ def payment(reservationid=None):
     total_add = total_eur - perticket_add
     total_eur = total_eur - total_add
 
+    # Генерира се плащането чрез API на PayPal
     payment = paypalrestsdk.Payment({"intent": "sale", "payer": {"payment_method": "paypal"},
                                      "redirect_urls": {"return_url": "http://127.0.0.1:5000/execute",
                                                        "cancel_url": "http://127.0.0.1:5000/cancel"}, "transactions": [{
@@ -391,8 +498,10 @@ def payment(reservationid=None):
             "description": f"{offer.description}", "custom": reservation.id}]})
 
     if payment.create():
+        # Ако плащането е създадено успешно, се препраща към страницата за плащане
         return redirect(payment.links[1].href)
     else:
+        # Ако плащането не е създадено успешно, се връща грешка
         flash("Грешка при плащането.", category='error')
         rsv = Reservation.query.filter_by(id=reservation.id).first()
         db.session.delete(rsv)
@@ -403,14 +512,20 @@ def payment(reservationid=None):
 @app.route('/execute', methods=['GET', 'POST'])
 @login_required
 def execute():
+    # Тук се извиква страницата за потвърждение на плащането
+
+    # Тук се взима информацията за плащането от PayPal
     payment_id = request.args.get('paymentId')
     payer_id = request.args.get('PayerID')
 
+    # Тук се извиква плащането от PayPal
     payment = paypalrestsdk.Payment.find(payment_id)
 
     custom_data = payment.transactions[0].custom
 
+    # Тук се проверява дали плащането е успешно
     if payment.execute({"payer_id": payer_id}):
+        # Ако плащането е успешно, се записва в базата данни
         flash('Успешно плащане. Проверете си имейл адреса.', category='success')
         reservation = Reservation.query.filter_by(id=custom_data).first()
         offer = Offer.query.filter_by(id=reservation.offer_id).first()
@@ -424,6 +539,7 @@ def execute():
         return redirect(url_for('index'))
 
     else:
+        # Ако плащането не е успешно, се връща грешка
         flash('Грешка при плащането. Опитайте отново', category='error')
         reservation = Reservation.query.filter_by(id=custom_data).first()
         db.session.delete(reservation)
@@ -434,30 +550,45 @@ def execute():
 @app.route('/cancel', methods=['GET', 'POST'])
 @login_required
 def cancel():
+    # Тук се извиква страницата за отказ на плащането
     flash('Отказахте плащането.', category='error')
     return redirect(url_for('index'))
 
 
+# Тук се извиква страницата за профил
 @app.route('/profile', methods=['GET', 'POST'])
 @login_required
 def profile():
+    # Тук се взимат резервациите на потребителя от базата данни
     reservations = Reservation.query.filter_by(user_id=current_user.id).all()
 
+    # Тук се взима офертата на всяка резервация
     for reservation in reservations:
         offer = Offer.query.filter_by(id=reservation.offer_id).first()
         reservation.offer = offer
         reservation.total_price = offer.price * reservation.tickets
 
+    # Тук се визуализира страницата за профил
+    # Параметрите са:
+    # user - потребителя
+    # countries - списък с държавите
+    # reservations - списък с резервациите на потребителя
+    # page - името на страницата
+
     return render_template('profile.html', user=current_user, countries=get_countries(), reservations=reservations,
                            page="profile")
 
 
+# Тук се извиква страницата за билетите
 @app.route('/tickets', methods=['GET', 'POST'])
 @app.route("/tickets/<reservationid>", methods=['GET', 'POST'])
 @login_required
 def tickets(reservationid=None):
 
+    # Тук се проверява дали има информация за резервацията
+
     if reservationid is None or not reservationid.isdigit():
+        # Ако няма информация за резервацията, се връща грешка
         flash('Нямаме информация за тази резервация.', category='error')
         return redirect(url_for('index'))
 
@@ -476,9 +607,21 @@ def tickets(reservationid=None):
 
     tickets = []
 
+    # Тук се взимат билетите на потребителя
+
     for filename in os.listdir("static/tickets"):
         if filename.startswith(str(current_user.id) + "_" + str(reservation.offer_id) + "_" + str(reservation.id)):
+            # Ако билетът е на потребителя и е с правилен формат, както е описано по-горе, се добавя към списъка
             tickets.append(filename)
+
+    # Тук се визуализира страницата за билетите
+    # Параметрите са:
+    # user - потребителя
+    # countries - списък с държавите
+    # tickets - списък с билетите на потребителя
+    # reservation - резервацията
+    # offer - офертата на резервацията
+    # page - името на страницата
 
     return render_template('tickets.html', user=current_user, countries=get_countries(), tickets=tickets,
                            reservation=reservation, offer=Offer.query.filter_by(id=reservation.offer_id).first(),
@@ -487,7 +630,6 @@ def tickets(reservationid=None):
 
 @app.route('/static/tickets/<filename>')
 def uploaded_file(filename):
-    # remove the extension
     filename = filename.split(".")[0]
     filename = filename.split("_")
     userid = filename[0]
@@ -543,20 +685,27 @@ def uploaded_file(filename):
         reservation.id) + "_" + str(ticketnumber) + ".png")
 
 
+# Тук се извиква страницата за влизане
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
+        # Ако потребителят е влязъл, се връща към началната страница
         return redirect(url_for('index'))
 
     if request.method == 'POST':
+        # Тук се взимат имейлът и паролата от формата
         email = request.form.get('email')
         password = request.form.get('password')
 
+        # Тук се проверява дали имейлът е валиден
         user = User.query.filter_by(email=email).first()
         if user is None or not check_password_hash(user.passwordhash, password):
+            # Ако имейлът не е валиден, се връща към страницата за влизане
+            # Ако паролата не е валидна, се връща към страницата за влизане
             flash('Грешен имейл или парола.', category='error')
             return redirect(url_for('login'))
 
+        # Тук се влиза в системата
         login_user(user)
         flash('Успешно влизане.', category='success')
         return redirect(url_for('index'))
@@ -564,12 +713,15 @@ def login():
     return render_template('login.html', user=current_user, countries=get_countries(), page="login")
 
 
+# Тук се извиква страницата за регистрация
 @app.route('/sign-up', methods=['GET', 'POST'])
 def sign_up():
     if current_user.is_authenticated:
+        # Ако потребителят е влязъл, се връща към началната страница
         return redirect(url_for('index'))
 
     if request.method == 'POST':
+        # Тук се взимат данните от формата
         email = request.form.get('email')
         fname = request.form.get('fname')
         lname = request.form.get('lname')
@@ -578,25 +730,35 @@ def sign_up():
         address = request.form.get('address')
         phone = request.form.get('phone')
 
+        # Тук се проверява дали имейлът е валиден
         user = User.query.filter_by(email=email).first()
         if user:
+            # Ако имейлът е зает, се връща към страницата за регистрация
             flash('Имейл адресът е зает.', category='error')
         elif len(email) < 4:
+            # Ако имейлът е твърде къс, се връща към страницата за регистрация
             flash('Имейл адресът е твърде къс.', category='error')
         elif len(fname) < 2:
+            # Ако името е твърде късо, се връща към страницата за регистрация
             flash('Името е твърде късо.', category='error')
         elif len(lname) < 2:
+            # Ако фамилията е твърде къса, се връща към страницата за регистрация
             flash('Фамилията е твърде къса.', category='error')
         elif password1 != password2:
+            # Ако паролите не съвпадат, се връща към страницата за регистрация
             flash('Паролите не съвпадат.', category='error')
         elif len(password1) < 7:
+            # Ако паролата е твърде къса, се връща към страницата за регистрация
             flash('Паролата е твърде къса.', category='error')
 
         else:
+            # Тук се създава нов потребител
             new_user = User(email=email, fname=fname, lname=lname, address=address,
                             passwordhash=generate_password_hash(password1, method='sha256'), phone=phone)
+            # Тук се добавя новия потребител в базата данни
             db.session.add(new_user)
             db.session.commit()
+            #   Тук се влиза в системата
             login_user(new_user)
             flash('Успешна регистрация.', category='success')
             return redirect(url_for('index'))
@@ -608,6 +770,7 @@ def sign_up():
 @login_required
 def logout():
     logout_user()
+    # Тук се излиза от системата
     flash('Успешно излизане.', category='success')
     return redirect(url_for('index'))
 
@@ -616,14 +779,19 @@ def logout():
 def contact():
 
     if request.method == 'POST':
+        # Тук се взимат данните от формата
         text = request.form.get('text')
         email = request.form.get('email')
         name = request.form.get('name')
 
+        # Тук се проверява дали информацията е валидна
+
         if text is None or text.rstrip() == "" or email is None or email.rstrip() == "" or name is None or name.rstrip() == "":
+            # Ако информацията не е валидна, се връща към страницата за контакти
             flash('Моля попълнете всички полета.', category='error')
             return redirect(url_for('contact'))
 
+        # Тук се изпраща имейл
         sendcontactemail(email, name, text)
 
         flash('Успешно изпратено съобщение.', category='success')
@@ -646,17 +814,21 @@ def about_us():
 @login_required
 def admin(where=None, ided=None):
     if not current_user.admin:
+        # Ако потребителят не е администратор, се връща към началната страница
         flash('Нямате достъп до тази страница.', category='error')
         return redirect(url_for('index'))
 
     if where == 'offers':
+        # Тук се взимат всички оферти
         if ided is not None:
+            # Тук се взима конкретна оферта
             isreserved = False
-            # check if any reservation is made for this offer
             reservations = Reservation.query.filter_by(offer_id=ided).all()
+            # Тук се проверява дали има резервация за тази оферта
             if reservations is not None and len(reservations) > 0:
                 isreserved = True
             if request.method == "POST":
+                # Тук се взимат данните от формата
                 name = request.form.get('name')
                 description = request.form.get('description')
                 countryid = request.form.get('country')
@@ -669,17 +841,23 @@ def admin(where=None, ided=None):
 
                 picture = request.files['picture']
 
+                # Тук се проверява дали информацията е валидна
+
                 if name is None or description is None or countryid is None or location is None or price is None or free_places is None or date_of_departure is None or date_of_return is None or picture is None:
+                    # Ако информацията не е валидна, се връща към страницата за редактиране
                     flash('Моля попълнете всички полета.', category='error')
                     return redirect(url_for('admin', where='offers', ided=ided))
 
+                # Тук се взима държавата
                 country = Country.query.filter_by(id=countryid).first()
 
+                # Тук се редактира офертата, като се взимат данните от формата и се записват в базата данни
                 Offer.query.filter_by(id=ided).update(
                     dict(name=name, description=description, country_id=country.id, location=location, price=price,
                          free_places=free_places, date_of_departure=date_of_departure, date_of_return=date_of_return))
                 db.session.commit()
 
+                # Тук се записва снимката
                 if picture.filename != '':
                     UPLOAD_FOLDER = 'static/offers'
                     picture.save(os.path.join(UPLOAD_FOLDER, str(ided) + ".jpg"))
@@ -690,24 +868,31 @@ def admin(where=None, ided=None):
             return render_template("editoffers.html", user=current_user, offer=Offer.query.filter_by(id=ided).first(),
                                    countries=get_countries(), isreserved=isreserved, page="admin")
         else:
+            # Ако не е подадено id, се връща към страницата за оферти
 
             return render_template('adminoffers.html', user=current_user, offers=Offer.query.all(), page="admin")
 
     elif where == 'dests':
+        # Тук се взимат всички дестинации
         if ided is not None:
+            # Тук се взима конкретна дестинация
             if request.method == "POST":
+                # Тук се взимат данните от формата
                 name = request.form.get('name')
                 description = request.form.get('description')
                 picture = request.files['picture']
                 category = request.form.get('country')
 
+                # Тук се проверява дали информацията е валидна
                 if name is None or description is None or picture is None:
                     flash('Моля попълнете всички полета.', category='error')
                     return redirect(url_for('admin', where='dests', ided=ided))
 
+                # Тук се редактира дестинацията, като се взимат данните от формата и се записват в базата данни
                 Country.query.filter_by(id=ided).update(dict(name=name, description=description, category=category))
                 db.session.commit()
 
+                # Тук се записва снимката
                 if picture.filename != '':
                     UPLOAD_FOLDER = 'static/dests'
                     picture.save(os.path.join(UPLOAD_FOLDER, str(ided) + ".jpg"))
@@ -718,8 +903,10 @@ def admin(where=None, ided=None):
             return render_template("editdests.html", user=current_user, dest=Country.query.filter_by(id=ided).first(),
                                    page="admin")
         else:
+            # Ако не е подадено id, се връща към страницата за дестинации
             return render_template('admindests.html', user=current_user, dests=Country.query.all(), page="admin")
 
+    # Ако не е подаден параметър за къде да се пренасочи, се връща към страницата за администратор
     return render_template('admin.html', user=current_user, page="admin")
 
 
@@ -727,12 +914,16 @@ def admin(where=None, ided=None):
 @app.route('/del/<where>/<ided>/')
 @login_required
 def delete(where=None, ided=None):
+    # Тук се изтриват оферти и дестинации
     if where is None or ided is None:
+        # Ако не са подадени параметри, се връща към страницата за администратор
         flash('Няма такава страница.', category='error')
         return redirect(url_for('admin'))
 
     if where == 'offers':
+        # Тук се изтрива оферта
         offer = Offer.query.filter_by(id=ided).first()
+        # Тук се изтриват резервациите за офертата
         reservations = Reservation.query.filter_by(offer_id=offer.id).all()
         if reservations is not None and len(reservations) > 0:
             for reservation in reservations:
@@ -744,8 +935,10 @@ def delete(where=None, ided=None):
         return redirect(url_for('admin', where='offers'))
 
     elif where == 'dests':
+        # Тук се изтрива дестинация
         country = Country.query.filter_by(id=ided).first()
         offers = Offer.query.filter_by(country_id=country.id).all()
+        # Тук се изтриват офертите за дестинацията
         if offers is not None and len(offers) > 0:
             for offer in offers:
                 reservations = Reservation.query.filter_by(offer_id=offer.id).all()
@@ -767,16 +960,18 @@ def delete(where=None, ided=None):
 @app.route('/add/<where>/', methods=['GET', 'POST'])
 @login_required
 def add(where=None):
-
-    print(where)
+    # Тук се добавят оферти и дестинации
 
     if where is None:
+        # Ако не е подаден параметър за къде да се пренасочи, се връща към страницата за администратор
         flash('Няма такава страница.', category='error')
         return redirect(url_for('admin'))
 
     if where == 'offers':
+        # Тук се добавя оферта
 
         if request.method == "POST":
+            # Тук се взимат данните от формата
             name = request.form.get('name')
             description = request.form.get('description')
             countryid = request.form.get('country')
@@ -789,24 +984,27 @@ def add(where=None):
 
             picture = request.files['picture']
 
+            # Тук се проверява дали всички полета са попълнени
             if name is None or description is None or countryid is None or location is None or price is None or free_places is None or date_of_departure is None or date_of_return is None or picture is None or picture.filename == '':
                 flash('Моля попълнете всички полета.', category='error')
                 return redirect(url_for('add', where='offers'))
 
-            days = (datetime.datetime.strptime(date_of_return, '%Y-%m-%d') - datetime.datetime.strptime(date_of_departure,
-                                                                                      '%Y-%m-%d')).days
-
-
+            # Тук се проверява дали датите са валидни и се изчислява броя на дните
+            days = (datetime.datetime.strptime(date_of_return, '%Y-%m-%d') - datetime.datetime.strptime(
+                date_of_departure, '%Y-%m-%d')).days
 
             if days < 0:
+                # Ако датата на връщане е преди датата на заминаване, се връща към страницата за добавяне на оферта
                 flash('Моля изберете валидна дата.', category='error')
                 return redirect(url_for('add', where='offers'))
 
             if days == 0:
+                # Ако датите са еднакви, се добавя 1 ден
                 days = 1
 
             country = Country.query.filter_by(id=countryid).first()
 
+            # Тук се добавя офертата в базата данни
             offer = Offer(name=name, description=description, country_id=country.id, days=days, location=location,
                           price=price, free_places=free_places, date_of_departure=date_of_departure,
                           date_of_return=date_of_return)
@@ -823,7 +1021,9 @@ def add(where=None):
         return render_template('addoffer.html', user=current_user, countries=get_countries(), page="admin")
 
     elif where == 'dests':
+        # Тук се добавя дестинация
         if request.method == "POST":
+            # Тук се взимат данните от формата
             name = request.form.get('name')
             description = request.form.get('description')
             picture = request.files['picture']
@@ -833,13 +1033,11 @@ def add(where=None):
                 flash('Моля попълнете всички полета.', category='error')
                 return redirect(url_for('add', where='dests'))
 
-            # localname = lower, remove all symbols, but letters
+            # Тук се премахват всички символи, но се запазват само буквите
             localname = name.lower()
-            # re sub
             localname = re.sub(r'[^a-zA-Zа-яА-Я]', '', localname)
 
-
-
+            # Тук се добавя дестинацията в базата данни
             country = Country(localname=localname, name=name, description=description, category=category)
             db.session.add(country)
             db.session.commit()
@@ -862,16 +1060,19 @@ from email.utils import formataddr
 
 
 def sendreserveemail(email, name, offer, reservation):
+    # Тук се изпраща имейл при успешна резервация
 
     EMAIL_ADDRESS = 'touristoagencymail@gmail.com'
     EMAIL_PASSWORD = 'ekeeteymfempyoqh'
 
+    # Тук се генерира самото съобщение
     msg = EmailMessage()
     msg['Subject'] = 'Успешна резервация'
     msg['From'] = formataddr(('Touristo', EMAIL_ADDRESS))
     msg['To'] = formataddr((f'{name}', f'{email}'))
     msg.set_content('RESERVATION CONFIRMED')
 
+    # Взимат се данните за резервацията
     ticketcount = reservation.tickets
     date_of_departure = offer.date_of_departure
     date_of_return = offer.date_of_return
@@ -886,6 +1087,7 @@ def sendreserveemail(email, name, offer, reservation):
         if filename.startswith(str(current_user.id) + "_" + str(reservation.offer_id) + "_" + str(reservation.id)):
             tickets.append(filename)
 
+    # Тук се добавя алтернативен текст и html към съобщението
     msg.add_alternative(f"""\
     <!DOCTYPE html>
     <html>
@@ -910,11 +1112,14 @@ def sendreserveemail(email, name, offer, reservation):
             msg.add_attachment(file_data, maintype='application', subtype='octet-stream', filename=file_name)
 
     with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
+        # Тук се изпраща имейла чрез smtp сървъра на gmail
         smtp.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
         smtp.send_message(msg)
 
 
 def sendcontactemail(email, name, message):
+
+    # Тук се изпраща имейл при контактна форма
 
     EMAIL_ADDRESS = 'touristoagencymail@gmail.com'
     EMAIL_PASSWORD = 'ekeeteymfempyoqh'
@@ -949,5 +1154,6 @@ def sendcontactemail(email, name, message):
 
 
 if __name__ == '__main__':
+    # Тук се стартира приложението
     app.debug = True
     app.run()
